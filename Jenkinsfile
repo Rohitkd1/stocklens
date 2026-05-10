@@ -50,12 +50,15 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh """
-                            # Install python3-venv if missing (Debian/Ubuntu Jenkins containers)
-                            if ! python3 -m venv --help > /dev/null 2>&1; then
-                                apt-get update -qq && apt-get install -y -qq python3-venv python3-pip
+                            # Check if ensurepip works (the real test for venv support)
+                            # python3 -m venv --help always exits 0 even when broken
+                            if ! python3 -c "import ensurepip" 2>/dev/null; then
+                                echo "ensurepip missing — installing python3-venv via apt..."
+                                apt-get update -qq
+                                apt-get install -y -qq python3-venv python3-pip
                             fi
 
-                            # Create venv only if it doesn't exist
+                            # Create venv
                             if [ ! -d ".venv" ]; then
                                 python3 -m venv .venv
                             fi
