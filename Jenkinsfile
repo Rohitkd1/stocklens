@@ -50,7 +50,16 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh """
-                            python3 -m venv .venv
+                            # Install python3-venv if missing (Debian/Ubuntu Jenkins containers)
+                            if ! python3 -m venv --help > /dev/null 2>&1; then
+                                apt-get update -qq && apt-get install -y -qq python3-venv python3-pip
+                            fi
+
+                            # Create venv only if it doesn't exist
+                            if [ ! -d ".venv" ]; then
+                                python3 -m venv .venv
+                            fi
+
                             .venv/bin/pip install --upgrade pip --quiet
                             .venv/bin/pip install -r requirements.txt --quiet
                         """
