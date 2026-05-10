@@ -128,28 +128,26 @@ print('Dataset OK:', len(df), 'rows | Date range:', df['Date'].min(), '->', df['
 
         stage('Reload Flask App') {
             steps {
-                echo "Reloading Flask app with updated dataset..."
+                echo "Signalling Flask to reload dataset from disk..."
                 script {
                     if (isUnix()) {
                         sh """
-                            # Kill any Flask process on port 5000
-                            fuser -k 5000/tcp 2>/dev/null || true
-                            sleep 2
-                            # Restart Flask in background
-                            nohup .venv/bin/python flask_app.py > flask.log 2>&1 &
-                            sleep 4
-                            echo "Flask restarted. PID: \$(pgrep -f flask_app.py)"
+                            # POST to /api/reload — flushes the in-memory DataFrame cache
+                            # Flask re-reads the CSV/Excel file immediately, no restart needed
+                            RESPONSE=\$(curl -s -o /dev/null -w '%{http_code}' \
+                                -X POST http://localhost:5000/api/reload 2>/dev/null || echo "000")
+
+                            if [ "\$RESPONSE" = "200" ]; then
+                                echo "Flask cache reloaded successfully (HTTP 200)"
+                            elif [ "\$RESPONSE" = "000" ]; then
+                                echo "Flask not reachable — skipping reload (not running on this host)"
+                            else
+                                echo "Reload returned HTTP \$RESPONSE — check Flask logs"
+                            fi
                         """
                     } else {
                         bat """
-                            @echo off
-                            for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING 2^>nul') do (
-                                taskkill /F /PID %%a >nul 2>nul
-                            )
-                            timeout /t 2 /nobreak >nul
-                            start /B .venv\\Scripts\\python flask_app.py > flask.log 2>&1
-                            timeout /t 4 /nobreak >nul
-                            echo Flask restarted.
+                            powershell -Command "try { $r = Invoke-WebRequest -Uri http://localhost:5000/api/reload -Method POST -UseBasicParsing -TimeoutSec 5; Write-Host 'Flask cache reloaded (HTTP' $r.StatusCode ')' } catch { Write-Host 'Flask not reachable on this host — skipping reload' }"
                         """
                     }
                 }
