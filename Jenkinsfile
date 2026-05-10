@@ -50,17 +50,17 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh """
-                            # Check if ensurepip works (the real test for venv support)
-                            # python3 -m venv --help always exits 0 even when broken
-                            if ! python3 -c "import ensurepip" 2>/dev/null; then
-                                echo "ensurepip missing — installing python3-venv via apt..."
-                                apt-get update -qq
-                                apt-get install -y -qq python3-venv python3-pip
+                            # Create venv WITHOUT pip (works even without ensurepip — no root needed)
+                            if [ ! -d ".venv" ]; then
+                                python3 -m venv .venv --without-pip
                             fi
 
-                            # Create venv
-                            if [ ! -d ".venv" ]; then
-                                python3 -m venv .venv
+                            # Bootstrap pip inside the venv using get-pip.py (no sudo required)
+                            if [ ! -f ".venv/bin/pip" ]; then
+                                echo "Bootstrapping pip via get-pip.py..."
+                                curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+                                .venv/bin/python3 get-pip.py --quiet
+                                rm -f get-pip.py
                             fi
 
                             .venv/bin/pip install --upgrade pip --quiet
