@@ -59,13 +59,133 @@ async function searchData() {
 }
 
 /* ─────────────────────────────────────────────
-   Keyboard support
+   Init
    ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  // Search keyboard shortcut
   document.getElementById('date-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') searchData();
   });
+
+  // Load git status into header bar
+  loadGitStatus();
+
+  // Drag-and-drop wiring
+  const dropZone  = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) setDropFile(fileInput.files[0]);
+  });
+
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) setDropFile(file);
+  });
 });
+
+/* ─────────────────────────────────────────────
+   Git Status Bar
+   ───────────────────────────────────────────── */
+async function loadGitStatus() {
+  try {
+    const res  = await fetch('/api/git-status');
+    const data = await res.json();
+    if (data.branch) document.getElementById('git-branch').textContent = data.branch;
+    if (data.hash)   document.getElementById('git-hash').textContent   = data.hash;
+    if (data.message) document.getElementById('git-msg').textContent   = '· ' + data.message;
+    if (data.repo)   document.getElementById('git-status-bar').href    = data.repo;
+  } catch (_) {}
+}
+
+/* ─────────────────────────────────────────────
+   Upload & Deploy
+   ───────────────────────────────────────────── */
+let _selectedFile = null;
+
+function setDropFile(file) {
+  _selectedFile = file;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+    showUploadResult(`❌ Unsupported file type: .${ext}. Use .csv or .xlsx`, 'error');
+    _selectedFile = null;
+    return;
+  }
+  const label = document.getElementById('drop-filename');
+  label.textContent = `📄 ${file.name}  (${(file.size / 1024).toFixed(1)} KB)`;
+  label.classList.remove('hidden');
+  document.getElementById('upload-btn').disabled = false;
+  document.getElementById('upload-result').classList.add('hidden');
+}
+
+async function uploadDataset() {
+  if (!_selectedFile) return;
+
+  const btn       = document.getElementById('upload-btn');
+  const commitMsg = document.getElementById('commit-msg').value.trim();
+
+  btn.classList.add('uploading');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Uploading...`;
+
+  const form = new FormData();
+  form.append('dataset', _selectedFile);
+  if (commitMsg) form.append('commit_msg', commitMsg);
+
+  try {
+    const res  = await fetch('/api/upload', { method: 'POST', body: form });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showUploadResult(`❌ ${data.error || 'Upload failed'}`, 'error');
+      return;
+    }
+
+    // Success
+    const pushIcon  = data.push_ok ? '✅' : '⚠️';
+    const pushNote  = data.push_ok
+      ? 'Jenkins pipeline will auto-trigger shortly.'
+      : 'Push failed — run <code>git push</code> manually to trigger Jenkins.';
+
+    showUploadResult(`
+      ✅ <strong>${data.filename}</strong> uploaded successfully<br>
+      📊 ${data.rows.toLocaleString()} rows &nbsp;·&nbsp; ${data.date_range}<br>
+      ${pushIcon} ${pushNote}
+      <div class="git-line">${data.git_log.join('<br>')}</div>
+    `, 'success');
+
+    // Refresh git status bar
+    loadGitStatus();
+
+    // Reset file selector
+    _selectedFile = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('drop-filename').classList.add('hidden');
+    document.getElementById('upload-btn').disabled = true;
+
+  } catch (err) {
+    showUploadResult(`🔌 Cannot reach Flask server.<br><small>${err.message}</small>`, 'error');
+  } finally {
+    btn.classList.remove('uploading');
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Push to Git`;
+  }
+}
+
+function showUploadResult(html, type) {
+  const el = document.getElementById('upload-result');
+  el.innerHTML = html;
+  el.className = `upload-result ${type}`;
+  el.classList.remove('hidden');
+}
+
+/* Add spin animation for loading icon */
+const style = document.createElement('style');
+style.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
+document.head.appendChild(style);
+
 
 /* ─────────────────────────────────────────────
    Rendering

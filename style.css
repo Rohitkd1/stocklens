@@ -395,6 +395,154 @@ body {
 .metric-card.accent-low   .metric-label { color: #fca5a5; }
 .metric-card.accent-close .metric-label { color: #c4b5fd; }
 
+/* ---------- Git Status Bar ---------- */
+.git-status-bar {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all var(--transition);
+  max-width: 400px; overflow: hidden;
+}
+.git-status-bar:hover { color: var(--text-secondary); border-color: var(--border-bright); }
+.git-hash {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-blue); font-size: 11px;
+}
+.git-msg {
+  color: var(--text-muted); font-size: 11px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* ---------- Upload Card ---------- */
+.upload-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(20px);
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  transition: border-color var(--transition);
+}
+.upload-card:hover { border-color: var(--border-bright); }
+
+.upload-card-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 16px;
+  margin-bottom: 22px; flex-wrap: wrap;
+}
+.upload-title {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 15px; font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.upload-subtitle {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.5;
+}
+.repo-link-btn {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition); white-space: nowrap;
+}
+.repo-link-btn:hover { border-color: var(--border-bright); color: var(--text-primary); }
+
+/* Drop Zone */
+.drop-zone {
+  border: 2px dashed rgba(100,130,200,0.25);
+  border-radius: var(--radius-sm);
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: rgba(59,130,246,0.03);
+  margin-bottom: 16px;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent-blue);
+  background: rgba(59,130,246,0.08);
+}
+.drop-zone.drag-over { transform: scale(1.01); }
+.drop-icon { color: var(--text-muted); margin-bottom: 12px; }
+.drop-zone:hover .drop-icon, .drop-zone.drag-over .drop-icon { color: var(--accent-blue); }
+.drop-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.drop-hint { font-size: 12px; color: var(--text-muted); }
+.drop-filename {
+  margin-top: 12px; padding: 8px 14px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: var(--radius-xs);
+  color: #34d399; font-size: 13px; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Controls row */
+.upload-controls {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.commit-input {
+  flex: 1; min-width: 220px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  outline: none; transition: all var(--transition);
+}
+.commit-input::placeholder { color: var(--text-muted); }
+.commit-input:focus { border-color: var(--accent-violet); box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+
+.upload-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  border: none; border-radius: var(--radius-sm);
+  color: #fff; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all var(--transition);
+  box-shadow: 0 4px 20px rgba(139,92,246,0.35);
+  white-space: nowrap;
+}
+.upload-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(139,92,246,0.5); }
+.upload-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.upload-btn.uploading { opacity: 0.7; pointer-events: none; }
+
+/* Upload result */
+.upload-result {
+  margin-top: 16px; padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; line-height: 1.7;
+  animation: fadeIn 0.3s ease;
+}
+.upload-result.success {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #6ee7b7;
+}
+.upload-result.error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #fca5a5;
+}
+.upload-result .git-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: var(--text-muted);
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
 /* ---------- Footer ---------- */
 .footer {
   position: relative; z-index: 1;
