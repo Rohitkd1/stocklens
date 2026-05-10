@@ -1,0 +1,34 @@
+[Unit]
+Description=StockLens – Gunicorn Flask App
+After=network.target
+
+[Service]
+# Change User to the account that runs the app
+User=www-data
+Group=www-data
+
+# Full path to project directory (must match APP_DIR in Jenkinsfile)
+WorkingDirectory=/var/www/stocklens
+
+# Dataset filename (change to .xlsx if using Excel)
+Environment="DATA_FILE=Data set sheet.csv"
+
+# Optional reload token (uncomment and set a strong value)
+# Environment="RELOAD_TOKEN=your-secret-token-here"
+
+# Gunicorn command – uses the virtualenv inside the project
+ExecStart=/var/www/stocklens/.venv/bin/gunicorn flask_app:app \
+    --bind 0.0.0.0:8000 \
+    --workers 2 \
+    --timeout 120 \
+    --access-logfile /var/log/stocklens/access.log \
+    --error-logfile  /var/log/stocklens/error.log
+
+# Allow Jenkins to restart without full sudo
+ExecReload=/bin/kill -s HUP $MAINPID
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

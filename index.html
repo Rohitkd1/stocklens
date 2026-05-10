@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Data Explorer | Search by Date</title>
+  <meta name="description" content="Search and explore historical stock market data including OHLCV, technical indicators like RSI, Bollinger Bands, MACD, and buy/sell signals." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Background Orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+            <polyline points="16 7 22 7 22 13"></polyline>
+          </svg>
+        </div>
+        <span class="logo-text">StockLens</span>
+      </div>
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        Live Dataset
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="main">
+    <section class="hero">
+      <div class="hero-tag">📊 Technical Analysis Platform</div>
+      <h1 class="hero-title">Explore Stock<br /><span class="gradient-text">Market Data</span></h1>
+      <p class="hero-subtitle">Search by date to view OHLCV prices, RSI, Bollinger Bands, MACD, stochastic oscillators and more.</p>
+    </section>
+
+    <!-- Search Card -->
+    <div class="search-card">
+      <div class="search-card-inner">
+        <label class="search-label" for="date-input">Select Trading Date</label>
+        <div class="search-row">
+          <div class="input-wrapper" id="input-wrapper">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+            <input
+              type="date"
+              id="date-input"
+              class="date-input"
+              aria-label="Select date to search stock data"
+            />
+          </div>
+          <button id="search-btn" class="search-btn" onclick="searchData()">
+            <span class="btn-text">Search</span>
+            <span class="btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+          </button>
+        </div>
+        <p class="search-hint">Dataset covers <strong>2010 – 2023</strong> · Format: YYYY-MM-DD</p>
+      </div>
+    </div>
+
+    <!-- Status Messages -->
+    <div id="status-msg" class="status-msg hidden"></div>
+
+    <!-- Results Section -->
+    <div id="results-section" class="results-section hidden">
+      <div class="results-header">
+        <div>
+          <h2 class="results-title">Market Data</h2>
+          <p id="results-date" class="results-date"></p>
+        </div>
+        <div id="signal-badge" class="signal-badge"></div>
+      </div>
+
+      <!-- Price Card Group -->
+      <div class="card-group">
+        <div class="group-label">Price (OHLC)</div>
+        <div class="metrics-grid" id="price-grid"></div>
+      </div>
+
+      <!-- Volume & VWAP -->
+      <div class="card-group">
+        <div class="group-label">Volume & VWAP</div>
+        <div class="metrics-grid" id="volume-grid"></div>
+      </div>
+
+      <!-- Momentum Indicators -->
+      <div class="card-group">
+        <div class="group-label">Momentum Indicators</div>
+        <div class="metrics-grid" id="momentum-grid"></div>
+      </div>
+
+      <!-- Bollinger & Bands -->
+      <div class="card-group">
+        <div class="group-label">Bollinger Bands & Oscillators</div>
+        <div class="metrics-grid" id="bands-grid"></div>
+      </div>
+
+      <!-- Trend Indicators -->
+      <div class="card-group">
+        <div class="group-label">Trend & Aroon</div>
+        <div class="metrics-grid" id="trend-grid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>StockLens · Powered by local CSV dataset &nbsp;·&nbsp; Data for educational purposes only</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

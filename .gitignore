@@ -1,0 +1,35 @@
+# ── Python ────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── Gunicorn / logs ───────────────────────────
+gunicorn.pid
+gunicorn.log
+access.log
+*.log
+
+# ── OS ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs ──────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ── Pytest ────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+
+# ── Node (from earlier static server) ─────────
+node_modules/
